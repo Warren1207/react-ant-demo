@@ -59,7 +59,8 @@ class Report extends React.Component {
         width: 220,
         dataIndex: 'errormessage'
       }],
-      queryData: [],      
+      queryData: [],   
+      scenesArray: [],   
       loading: false,
       pagination: {
         showTotal : (total) => { return `共 ${total} 条` },
@@ -76,6 +77,13 @@ class Report extends React.Component {
   }
   scenesChange = (v) =>{
       queryParams.scenes = v;
+  }
+  queryScene() {
+    fetch("/scenes/index").then(res => {
+      this.setState({
+        scenesArray: res.Data
+      });
+    });
   }
   queryFn = () =>{
     this.setState({
@@ -95,12 +103,14 @@ class Report extends React.Component {
     );
   }
   componentDidMount() {
-    this.queryFn()
+    this.queryFn();
+    this.queryScene();
   }
   render() {
     const rowSelection = {
       type: 'radio'
     }
+    const { scenesArray } = this.state;
     return (
       <div className="page-wrap">
         <Row gutter={10}>
@@ -126,9 +136,7 @@ class Report extends React.Component {
                 placeholder="任务场景"
                 onChange={this.scenesChange}              
               >
-                <Option value={1}>成功</Option>
-                <Option value={2}>失败</Option>
-                <Option value={0}>进行中</Option>
+                {scenesArray.map(d => <Option key={d.name}>{d.name}</Option>)}
               </Select>
           </Col>
           <Col className="gutter-row" span={4}>
@@ -136,7 +144,7 @@ class Report extends React.Component {
           </Col>
         </Row>
         <div className="table-wrap">
-          <Table bordered rowSelection={rowSelection} rowKey={record => record.id}  columns={this.state.columns} loading={this.state.loading} dataSource={this.state.queryData} pagination={this.state.pagination} scroll={{ y: 'max-content' }} />
+          <Table bordered rowSelection={rowSelection} rowKey={record => record.id}  columns={this.state.columns} loading={this.state.loading} dataSource={this.state.queryData} pagination={this.state.pagination} scroll={{ y: '100%' }} />
         </div>
       </div>
     )
